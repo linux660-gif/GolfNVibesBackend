@@ -1,3 +1,5 @@
 httpx
 fastapi
 pydantic
+sqlalchemy
+fastapi-mail
