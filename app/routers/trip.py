@@ -2,6 +2,7 @@ from http import HTTPStatus
 from fastapi import APIRouter, HTTPException,status,Query
 from sqlalchemy import select, delete
 import logging
+from typing import Dict
 
 from app.db.database import get_db
 from app.schemas.trip_schema import (PlanTrip, PlanTripUpdate as PlanTripUpdateSchema, PlanTripResponse)
@@ -11,7 +12,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/trips", tags=["Trip"])
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
-async def add_custom_trip(trip:PlanTrip):
+async def add_custom_trip(trip:PlanTrip) -> Dict[str, str]:
     async with get_db() as db:
 
         result = await db.execute(select(TripModel).where((TripModel.email == trip.email) | (TripModel.phone_number == trip.phone_number)))
@@ -29,16 +30,20 @@ async def add_custom_trip(trip:PlanTrip):
             last_name=trip.last_name,
             email=trip.email,
             phone_number=trip.phone_number,
-            number_of_golfers=trip.number_of_golfers,
-            number_of_non_golfers=trip.number_of_non_golfers,
+            golfers=trip.golfers,
+            non_golfers=trip.non_golfers,
             budget=trip.budget,
-            golf_rounds=trip.golf_rounds,
+            rounds=trip.rounds,
             experiences=trip.experiences,
             additional_specifications=trip.additional_specifications,
             airport_transfers=trip.airport_transfers,
-            flexible_date=trip.flexible_date,
-            hotel_preference=trip.hotel_preference,
-            arrange_flights=trip.arrange_flights
+            date=trip.date,
+            hotel=trip.hotel,
+            flights=trip.flights,
+            destination = trip.destination,
+            other_destination = trip.other_destination,
+            continent = trip.continent,
+            flexible_dates = trip.flexible_dates
         )
 
 
@@ -47,11 +52,10 @@ async def add_custom_trip(trip:PlanTrip):
             await db.commit()
             await db.refresh(new_trip)
             logger.info("Trip Created")
-            return {'message': "Trip successfully added",
-                "trip": new_trip}
+            return {'message': "Trip successfully added"}
 
 
-        except Exception as e:
+        except Exception:
             logger.exception(f"Database Error")
             await db.rollback()
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal Server Error")
@@ -75,7 +79,7 @@ async def get_trips(
         if phone:
             query = query.where(TripModel.phone_number == phone)
         if trip_id is not None:
-            query = query.where(TripModel.id == trip_id)
+            query = query.where(TripModel.trip_id == trip_id)
 
         query = query.limit(limit).offset(offset)
 
@@ -94,7 +98,7 @@ async def get_trips(
 @router.patch("/{trip_id}", status_code=HTTPStatus.OK)
 async def update_trip(trip_id: int, trip: PlanTripUpdateSchema):
     async with get_db() as db:
-        result = await db.execute(select(TripModel).where(TripModel.id == trip_id))
+        result = await db.execute(select(TripModel).where(TripModel.trip_id == trip_id))
         available_trip = result.scalars().first()
         if not available_trip:
             logger.error("Trip Update Failed")
@@ -108,15 +112,16 @@ async def update_trip(trip_id: int, trip: PlanTripUpdateSchema):
             "email",
             "phone_number",
             "budget",
-            "number_of_golfers",
-            "number_of_non_golfers",
-            "golf_rounds",
+            "golfers",
+            "non_golfers",
+            "rounds",
             "experiences",
             "additional_specifications",
             "airport_transfers",
-            "flexible_date",
-            "hotel_preference",
-            "arrange_flights"
+            "flexible_dates",
+            "hotel",
+            "flights",
+            "other_destination"
         }
         for field, value in update_data.items():
             if field in allowed_fields:
@@ -128,7 +133,7 @@ async def update_trip(trip_id: int, trip: PlanTripUpdateSchema):
             return {
                 "message": "Trip Updated Successfully"
             }
-        except Exception as e:
+        except Exception:
             logging.exception("Database Error")
             await db.rollback()
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal Server Error")
@@ -136,7 +141,7 @@ async def update_trip(trip_id: int, trip: PlanTripUpdateSchema):
 @router.delete("/{trip_id}", status_code=status.HTTP_200_OK)
 async def delete_trip(trip_id: int):
     async with get_db() as db:
-        result = await db.execute(select(TripModel).where(TripModel.id == trip_id))
+        result = await db.execute(select(TripModel).where(TripModel.trip_id == trip_id))
         trip = result.scalars().first()
         if not trip:
             logger.error(f"Failed to delete trip with id: {trip_id}")
@@ -147,7 +152,7 @@ async def delete_trip(trip_id: int):
             return {
                 "message": "Trip deleted successfully"
             }
-        except Exception as e:
+        except Exception:
             logger.exception("Database Error")
             await db.rollback()
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal Server Error")
@@ -157,13 +162,12 @@ async def delete_trip(trip_id: int):
 async def delete_trips():
     async with get_db() as db:
         try:
-            result = await db.execute(delete(TripModel))
+            await db.execute(delete(TripModel))
             await db.commit()
-
             return {
-                "message": f"{result.rowcount} trips deleted"
+                "message": " trips deleted"
             }
-        except Exception as e:
+        except Exception:
             await db.rollback()
             logger.exception("Database Error")
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal Server Error")

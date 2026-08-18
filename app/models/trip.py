@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, Boolean
+from sqlalchemy import JSON, Column, String, Integer, Boolean
 
 from app.db.database import Base
 
@@ -10,14 +10,18 @@ class Trip(Base):
     last_name = Column(String)
     email = Column(String)
     phone_number = Column(String)
-    number_of_golfers = Column(Integer)
-    number_of_non_golfers = Column(Integer)
-    golf_rounds = Column(Integer)
-    hotel_preference = Column(String)
+    golfers = Column(Integer)
+    date =Column(String)
+    non_golfers = Column(Integer)
+    rounds = Column(Integer)
+    hotel = Column(String)
     airport_transfers = Column(Boolean)
-    arrange_flights = Column(Boolean)
-    flexible_date = Column(Boolean)
-    experiences = Column(String)
+    flights = Column(Boolean)
+    flexible_dates = Column(Boolean)
+    experiences = Column(JSON, default=list)
+    destination =Column(String)
+    other_destination = Column(String)
     additional_specifications = Column(String)
+    continent = Column(String)
     budget = Column(String)
 

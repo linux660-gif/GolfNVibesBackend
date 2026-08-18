@@ -1,10 +1,11 @@
+from typing import List
+
 from pydantic import BaseModel
 
 
 class TripService(BaseModel):
     destination: str
     date: str
-    duration: str
 
 class TripResponse(TripService):
     pass
@@ -17,14 +18,17 @@ class PlanTrip(TripService):
     last_name:str
     email: str
     phone_number: str
-    number_of_golfers: int
-    number_of_non_golfers: int
-    golf_rounds: int
-    hotel_preference: str
+    golfers: int
+    non_golfers: int
+    rounds: int
+    continent:str
+    destination:str
+    hotel: str
     airport_transfers: bool
-    arrange_flights: bool
-    flexible_date:bool
-    experiences:str
+    flights: bool
+    flexible_dates:bool
+    experiences:List[str]
+    other_destination:str
     additional_specifications:str
     budget: str
 

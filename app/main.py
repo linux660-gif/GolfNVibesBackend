@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import payments, newsletter, trip, members, email
+from app.routers import  newsletter, trip, members, email
 from app.db.database import Base, engine
 from app.core.logging_config import setup_logging
 
@@ -19,7 +19,7 @@ app = FastAPI(lifespan=lifespan)
 origins =[
     "http://localhost",
     "http://localhost:5173",
-    "https://golfnvibes.co.ke",
+    "https://golfnvibes.com",
     "https://golf-n-vibes-frontend.vercel.app"
 ]
 
