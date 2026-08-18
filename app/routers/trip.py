@@ -7,9 +7,11 @@ from typing import Dict
 from app.db.database import get_db
 from app.schemas.trip_schema import (PlanTrip, PlanTripUpdate as PlanTripUpdateSchema, PlanTripResponse)
 from app.models.trip import Trip as TripModel
+from app.clients.email.email_service import EmailService
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/trips", tags=["Trip"])
+email_service = EmailService()
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def add_custom_trip(trip:PlanTrip) -> Dict[str, str]:
@@ -51,6 +53,7 @@ async def add_custom_trip(trip:PlanTrip) -> Dict[str, str]:
             db.add(new_trip)
             await db.commit()
             await db.refresh(new_trip)
+            email_service.send_plan_trip_confirmation(trip.email, trip.destination, trip.first_name, trip.last_name)
             logger.info("Trip Created")
             return {'message': "Trip successfully added"}
 

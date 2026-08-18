@@ -60,5 +60,77 @@ class EmailService:
         except Exception as e:
             return False
 
+    async def send_plan_trip_confirmation(self,recipient,destination, first_name, second_name) -> bool:
+        template_data = {
+            "reference_number": "ref",
+            "name": first_name + second_name,
+            "destination": destination,
+           
+
+
+        }
+
+        message = MessageSchema(
+            subject=f"Your Custom Travel For {destination} has been received",
+            recipients=[recipient],
+            template_body=template_data,
+            subtype=MessageType.html
+        )
+
+        try:
+            await self.fm.send_message(message, template_name="plan_trip_confirmation.html")
+            return True
+        except Exception:
+            return False
+
+
+
+    async def send_membership_confirmation(self,recipient,club, full_name) -> bool:
+        template_data = {
+            
+            "name": full_name,
+            "club": club,
+
+        }
+
+        message = MessageSchema(
+            subject=f"Welcome your Membership in {club} is Received",
+            recipients=[recipient],
+            template_body=template_data,
+            subtype=MessageType.html
+        )
+
+        try:
+            await self.fm.send_message(message, template_name="membership_confirmation.html")
+            return True
+        except Exception:
+            return False
+
+
+    
+    async def send_host_confirmation(self,recipient,company, full_name) -> bool:
+        template_data = {
+            
+            "name": full_name,
+            "club": company,
+
+        }
+
+        message = MessageSchema(
+            subject=f"Application Received: GolfNVibes Tournament Host Request",
+            recipients=[recipient],
+            template_body=template_data,
+            subtype=MessageType.html
+        )
+
+        try:
+            await self.fm.send_message(message, template_name="host_confirmation.html")
+            return True
+        except Exception:
+            return False
+
+
+
+
 
 

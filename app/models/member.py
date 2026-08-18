@@ -10,4 +10,5 @@ class Members(Base):
     phone_number = Column(String)
     handicap_index = Column(String)
     club = Column(String)
+    joining_insight = Column(String)
 

@@ -4,7 +4,8 @@ import logging
 
 
 from app.db.database import get_db
-from app.schemas.member_schema import (MemberBase, MemberCreate as MemberCreateSchema, MemberUpdate)
+from app.routers.trip import email_service
+from app.schemas.member_schema import ( MemberCreate as MemberCreateSchema, MemberUpdate)
 from app.models.member import Members as MembersModel
 
 router = APIRouter(prefix="/members", tags=["Members"])
@@ -21,9 +22,9 @@ async def create_member(member: MemberCreateSchema):
                 await db.commit()
                 await db.refresh(member)
                 logger.info("Member created")
+                await email_service.send_membership_confirmation(member.email, member.club, member.full_name)
                 return {
-                    "message": "Member successfully created",
-                    'member': member,
+                    "message": "Member successfully created"
                 }
             except Exception as e:
                 await db.rollback()
