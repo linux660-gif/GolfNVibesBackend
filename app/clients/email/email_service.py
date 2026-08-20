@@ -101,9 +101,12 @@ class EmailService:
         )
 
         try:
+            logger.info("Sending....")
             await self.fm.send_message(message, template_name="membership_confirmation.html")
+            
             return True
         except Exception:
+            logger.exception("Email not Sent!")
             return False
 
 
@@ -112,12 +115,12 @@ class EmailService:
         template_data = {
             
             "name": full_name,
-            "club": company,
+            "company": company,
 
         }
 
         message = MessageSchema(
-            subject=f"Application Received: GolfNVibes Tournament Host Request",
+            subject="Application Received: GolfNVibes Tournament Host Request",
             recipients=[recipient],
             template_body=template_data,
             subtype=MessageType.html
@@ -128,6 +131,8 @@ class EmailService:
             return True
         except Exception:
             return False
+
+
 
 
 

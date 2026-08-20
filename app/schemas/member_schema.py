@@ -6,7 +6,7 @@ class MemberBase(BaseModel):
     phone_number: str
     handicap_index:str
     club:str
-    reason_to_join:str
+    joining_insight:str
 
 class MemberCreate(MemberBase):
     pass

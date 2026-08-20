@@ -17,21 +17,33 @@ async def create_member(member: MemberCreateSchema):
         result = await db.execute(select(MembersModel).where(MembersModel.phone_number == member.phone_number))
         existing_member = result.scalars().first()
         if existing_member is None:
+            new_member = MembersModel(
+            full_name = member.full_name,
+            email = member.email,
+            phone_number = member.phone_number,
+            handicap_index = member.handicap_index,
+            club = member.club,
+            joining_insight = member.joining_insight )
             try:
-                db.add(member)
+                db.add(new_member)
                 await db.commit()
-                await db.refresh(member)
+                await db.refresh(new_member)
                 logger.info("Member created")
-                await email_service.send_membership_confirmation(member.email, member.club, member.full_name)
+            
+                result = await email_service.send_membership_confirmation(member.email, member.club, member.full_name)
+                if result:
+                    logger.info("Email Sent")
+                logger.exception("Email not Sent")
+               
+
                 return {
                     "message": "Member successfully created"
                 }
-            except Exception as e:
+            except Exception:
                 await db.rollback()
                 logger.exception("Server Error")
                 return {
-                    "message": "Member creation failed",
-                    "exception": e
+                    "message": "Member creation failed"
                 }
         return {
             "message": "Member Already Exists",

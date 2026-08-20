@@ -14,7 +14,7 @@ class EmailSetting(BaseSettings):
     mail_ssl_tls: bool
     use_credentials: bool
     validate_certs: bool
-    model_config = SettingsConfigDict(env_file="/home/nusytech/Documents/Software Engineering/Projects/GolfNVibesBackend/.env")
+    model_config = SettingsConfigDict(env_file="/home/ghost/projects/GolfNVibesBackend/.env")
 
 
 
